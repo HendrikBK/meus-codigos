@@ -11,7 +11,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 import pyperclip
 import time
 import pyautogui
-import csv
 import os
 import pandas as pd
 
@@ -63,9 +62,6 @@ def gerar_guia_icms(desc, ie, dia, mes, ano, valor, empresa):
     # Crie uma string com a data do pagamento
     data_pagamento = dia_str + "/" + mes_pagamento + "/" + ano_str
 
-    # Crie uma string com o mês da competência
-    mes_str = str(mes)
-
     # Inicie o driver
     driver = webdriver.Firefox()
     # Vá para página de gerar guias
@@ -89,7 +85,7 @@ def gerar_guia_icms(desc, ie, dia, mes, ano, valor, empresa):
     data_input.send_keys(data_pagamento + Keys.TAB)
 
     # Selecione o mês da competência
-    Select(driver.find_element(By.ID, "Meses_Codigo")).select_by_value(mes_str)
+    Select(driver.find_element(By.ID, "Meses_Codigo")).select_by_value(str(mes))
     
     time.sleep(1)
 
