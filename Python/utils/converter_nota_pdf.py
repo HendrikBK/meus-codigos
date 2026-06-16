@@ -4,7 +4,7 @@ import sys
 import chardet
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
-from consertar_notas import limpar_arquivo
+from limpar_arquivo import limpar_arquivo
 
 def converter_nota_pdf(xml_file):
 
