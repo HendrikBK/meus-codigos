@@ -2,3 +2,4 @@
 **.xml
 **.xlsx
 **.pdf
+__pycache__/
