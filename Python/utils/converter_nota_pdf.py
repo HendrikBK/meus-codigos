@@ -1,6 +1,6 @@
 from brazilfiscalreport.danfe import Danfe
 from brazilfiscalreport.danfse import Danfse
-from limpar_arquivo import limpar_arquivo
+from utils.limpar_arquivo import limpar_arquivo
 import os
 
 def converter_nota_pdf(xml_file):
