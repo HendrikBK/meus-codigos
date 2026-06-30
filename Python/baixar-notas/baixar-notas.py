@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
+import csv
 import shutil
 import zipfile
 import sys
@@ -103,25 +104,40 @@ def baixar_notas(url, driver):
 
 if __name__ == "__main__":
 
+    os.chdir(os.path.dirname(__file__))
+
+    # Ler o arquivo com as empresas
     # Listar as empresas cujas notas devem ser baixadas
-    empresas = {
-        #"AGM": "31052550000269",
-        #"AAM": "32071287000137",
-        #"BMM": "38138373000104",
-        #"MHR": "12281561000195",
-        #"EFP": "52449407000102",
-        #"ERO": "43290340000107",
-        #"DR": "49938005000159",
-        #"Gasparetto": "50116836000124",
-        #"VCA": "36277100000107",
-        #"VPF": "36311404000143",
-        #"Cleidy": "59117186000106",
-        #"Frz": "63786592000139",
+    with open("empresas.csv", mode='r', newline='', encoding='utf-8') as f:
+        next(f)
+        reader = csv.reader(f, delimiter=';')
+        empresas = {row[0]: row[1] for row in reader}
+    
+    print(empresas)
+    
+    """empresas = {
+        "AGM": "31052550000269",
+        "AAM": "32071287000137",
+        "BMM": "38138373000104",
+        "MHR": "12281561000195",
+        "EFP": "52449407000102",
+        "ERO": "43290340000107",
+        "DR": "49938005000159",
+        "Gasparetto": "50116836000124",
+        "VCA": "36277100000107",
+        "VPF": "36311404000143",
+        "Cleidy": "59117186000106",
+        "Frz": "63786592000139",
         "Walter Lenz": "46261630097"
-    }
+    }"""
 
     # Definir uma função para obter os dados fornecidos e baixas as notas
     def main_script():
+        # Verificar os valores dos checkboxes de casa empresa. Caso seja "False", modificar o dicionário de opções de cada empresa, caso contrário, não fazer nada
+        for empresa in empresas_selecionadas:
+            key = empresa.get("nome")
+            if not botoes_empresas[key].get():
+                empresa["baixar_notas"] = False
         # Obter o mês da competência
         mes = combo_meses.get()
         # Obter o ano da competência
@@ -133,13 +149,23 @@ if __name__ == "__main__":
         # Iniciar o driver
         driver = webdriver.Firefox()
         # Obter um url e rodas a função de organizar arquivos para cada item do dicionário
-        for key, value in empresas.items():
-            # Mudar o diretório para o escolhido
-            os.chdir(path)
-            # Montar a url de casa empresa
-            url = "https://cofre.sieg.com/lista-xml?cnpjdes=" + value + "&year=" + ano + "&month=" + mes + "&ordertype=4"
-            # Executar a função para baixar e organizar arquivos
-            organizar_arquivos(url, key, mes, ano, driver, **opcoes)
+        for item in empresas_selecionadas:
+            nome = item["nome"]
+            documento = item["documento"]
+            baixar_notas = item["baixar_notas"]
+            # Adicionar zeros caso o documento possua menos que 11 (CPF) ou 14 (CNPJ)
+            if len(str(documento)) > 11 and len(str(documento)) < 14:
+                documento = pad_num(documento, 14)
+            elif len(str(documento)) < 11:
+                documento = pad_num(documento, 11)
+            print(documento)
+            if baixar_notas:
+                # Mudar o diretório para o escolhido
+                os.chdir(path)
+                # Montar a url de casa empresa
+                url = "https://cofre.sieg.com/lista-xml?cnpjdes=" + documento + "&year=" + ano + "&month=" + mes + "&ordertype=4"
+                # Executar a função para baixar e organizar arquivos
+                organizar_arquivos(url, nome, mes, ano, driver, **opcoes)
         
     # Navegar entre diretórios para escolher o desejado
     def browse_path():
@@ -194,6 +220,26 @@ if __name__ == "__main__":
     arquivos_frame.pack(fill=tk.X, padx=10)
     opcoes["XMLS"] = apagar_xmls_var.get()
     opcoes["PDFS"] = apagar_pdfs_var.get()
+
+    
+    # Criar checkboxes para item item das empresas
+    # Criar um frame para as checkboxes
+    empresas_frame = tk.Frame(root)
+    # Criar um dicionário vazio para guardar os valores dos checkboxes
+    botoes_empresas = {}
+    # Criar uma lista vazia para guardar o nome, documento e opção de baixar notas de cada empresa.
+    empresas_selecionadas = []
+    # Criar um checkbox para item do dicionário
+    for key, value in empresas.items():
+        botoes_empresas[key] = tk.BooleanVar(value=True)
+        cb = tk.Checkbutton(empresas_frame, text=key, variable=botoes_empresas[key])
+        cb.pack(anchor='w')
+        # Colocar as opções em um dicionário, com o valor de "baixar_notas" como verdadeiro por padrão
+        empresa_opcao = {"nome": key, "documento": value, "baixar_notas": True}
+        # Colocar o dicionário na lista
+        empresas_selecionadas.append(empresa_opcao)
+    # Acoplar o frame das checkboxes na tela principal
+    empresas_frame.pack(anchor='w')
 
     # Criar o botão para obter os dados fornecidos e rodão a função
     btn = tk.Button(root, text="Confirmar", command=main_script)
