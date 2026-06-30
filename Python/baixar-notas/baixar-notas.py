@@ -22,7 +22,7 @@ def organizar_arquivos(url, nome, mes, ano, driver):
     # Adicione um zero na frente do número do mês, caso seja de um dígito
     mes = pad_num(mes, 2)
     # Crie um diretório para a empresa selecionada
-    dest_path = './' + nome
+    dest_path = './' + nome + '/' + mes + '.' + ano
     os.makedirs(dest_path, exist_ok=True)
     # Liste os arquivos na pasta downloads
     files = os.listdir()
@@ -47,7 +47,7 @@ def organizar_arquivos(url, nome, mes, ano, driver):
             # Apague o zip
             os.remove(file)
             # Retorne ao diretório principal
-            os.chdir('..')
+            os.chdir('../..')
     # Mude o diretório para a pasta de destino das notas
     os.chdir(dest_path)
     # Liste os arquivos na pasta
@@ -102,18 +102,19 @@ if __name__ == "__main__":
 
     # Listar as empresas cujas notas devem ser baixadas
     empresas = {
-        "AGM": "31052550000269",
-        "AAM": "32071287000137",
-        "BMM": "38138373000104",
-        "MHR": "12281561000195",
-        "EFP": "52449407000102",
-        "ERO": "43290340000107",
-        "DR": "49938005000159",
-        "Gasparetto": "50116836000124",
-        "VCA": "36277100000107",
-        "VPF": "36311404000143",
-        "Cleidy": "59117186000106",
-        "Frz": "63786592000139"
+        #"AGM": "31052550000269",
+        #"AAM": "32071287000137",
+        #"BMM": "38138373000104",
+        #"MHR": "12281561000195",
+        #"EFP": "52449407000102",
+        #"ERO": "43290340000107",
+        #"DR": "49938005000159",
+        #"Gasparetto": "50116836000124",
+        #"VCA": "36277100000107",
+        #"VPF": "36311404000143",
+        #"Cleidy": "59117186000106",
+        #"Frz": "63786592000139",
+        "Walter Lenz": "46261630097"
     }
 
     # Definir uma função para obter os dados fornecidos e baixas as notas
