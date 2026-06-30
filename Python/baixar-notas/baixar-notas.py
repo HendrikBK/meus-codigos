@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 
 # Baixe as notas de uma empresa e organize os arquivos em um diretório único
-def organizar_arquivos(url, nome, mes, ano, driver):
+def organizar_arquivos(url, nome, mes, ano, driver, **opcoes):
     # Baixe as notas, usando a url construída na main
     baixar_notas(url, driver)
     # Adicione um zero na frente do número do mês, caso seja de um dígito
@@ -56,10 +56,13 @@ def organizar_arquivos(url, nome, mes, ano, driver):
     for xml_file in xml_files:
         # Caso o arquivo seja um xml, converta para pdf e apague o xml
         if xml_file.endswith(".xml"):
-            converter_nota_pdf(xml_file)
-            os.remove(xml_file)
+            if opcoes["PDFS"]:
+                converter_nota_pdf(xml_file)
+            if not opcoes["XMLS"]:
+                os.remove(xml_file)
     # Crie um pdf com os demais pdfs
-    join_pdfs(nome + " " + mes + "." + ano)
+    if opcoes["PDFS"]:
+        join_pdfs(nome + " " + mes + "." + ano)
 
 # Função para baixar notas 
 def baixar_notas(url, driver):
@@ -136,7 +139,7 @@ if __name__ == "__main__":
             # Montar a url de casa empresa
             url = "https://cofre.sieg.com/lista-xml?cnpjdes=" + value + "&year=" + ano + "&month=" + mes + "&ordertype=4"
             # Executar a função para baixar e organizar arquivos
-            organizar_arquivos(url, key, mes, ano, driver)
+            organizar_arquivos(url, key, mes, ano, driver, **opcoes)
         
     # Navegar entre diretórios para escolher o desejado
     def browse_path():
@@ -150,6 +153,9 @@ if __name__ == "__main__":
     meses = [i for i in range(1,13)]
     # Criar uma lista com anos de 2026 a 2031
     anos = [i for i in range(2026, 2032)]
+
+    # Crie um dicionário para guardar as opções de apagar XMLs ou PDFs
+    opcoes = {}
 
     # Cria um widget para mostrar os campos desejados pelo usuário
     root = tk.Tk()
@@ -177,6 +183,18 @@ if __name__ == "__main__":
     anos_label.pack(pady=5)
     combo_anos = ttk.Combobox(root, values=anos, state="readonly")
     combo_anos.pack(padx=10)
+    # Crie dois botões para selecionar se deseja-se manter os XMLs e/ou os PDFs
+    arquivos_frame = tk.Frame(root)
+    apagar_pdfs_var = tk.BooleanVar(value=True)
+    apagar_pdfs = tk.Checkbutton(arquivos_frame, text="Manter PDFS", variable=apagar_pdfs_var)
+    apagar_xmls_var = tk.BooleanVar(value=False)
+    apagar_xmls = tk.Checkbutton(arquivos_frame, text="Manter XMLS", variable=apagar_xmls_var)
+    apagar_pdfs.pack(side=tk.LEFT)
+    apagar_xmls.pack(side=tk.RIGHT)
+    arquivos_frame.pack(fill=tk.X, padx=10)
+    opcoes["XMLS"] = apagar_xmls_var.get()
+    opcoes["PDFS"] = apagar_pdfs_var.get()
+
     # Criar o botão para obter os dados fornecidos e rodão a função
     btn = tk.Button(root, text="Confirmar", command=main_script)
     btn.pack(padx=10, pady=10)
