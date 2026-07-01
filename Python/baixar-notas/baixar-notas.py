@@ -62,7 +62,7 @@ def organizar_arquivos(url, nome, mes, ano, driver, **opcoes):
             if not opcoes["XMLS"]:
                 os.remove(xml_file)
     # Crie um pdf com os demais pdfs
-    if opcoes["PDFS"]:
+    if opcoes["PDFS"] and len(xml_files) > 0:
         join_pdfs(nome + " " + mes + "." + ano)
 
 # Função para baixar notas 
